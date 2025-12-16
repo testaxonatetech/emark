@@ -16,6 +16,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Document changes here
 
+## [1.0.6] - 2025-01-XX
+
+### Fixed
+
+- macOS file selection issue where PDF files were visible but not selectable in native FileDialog
+- Removed FilenameFilter that was interfering with macOS file dialog functionality
+
+### Changed
+
+- macOS now uses post-selection validation instead of filename filtering for better compatibility
+
+## [1.0.5] - 2025-01-XX
+
+### Fixed
+
+- macOS native FileDialog PDF files appearing grayed out and unselectable
+- Removed FilenameFilter interference with macOS file selection, now validates PDF extension after selection
+
+### Changed
+
+- Improved macOS file selection by using post-selection validation instead of filename filtering
+
 ## [1.0.4] - 2025-01-XX
 
 ### Added
@@ -63,7 +85,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cross-platform support (Windows, Linux, macOS)
 - Bundled JRE installers for all platforms
 
-[Unreleased]: https://github.com/testaxonatetech/emark/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/testaxonatetech/emark/compare/v1.0.6...HEAD
+[1.0.6]: https://github.com/testaxonatetech/emark/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/testaxonatetech/emark/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/testaxonatetech/emark/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/testaxonatetech/emark/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/testaxonatetech/emark/compare/v1.0.1...v1.0.2
