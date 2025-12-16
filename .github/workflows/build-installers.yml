@@ -20,10 +20,10 @@
 #   7. release: Creates GitHub release and uploads all installers
 #
 # IMPORTANT - Centralized Configuration:
-#   - This workflow reads configuration from .github/config.yml (single source of truth)
+#   - This workflow reads configuration from config.yml (single source of truth)
 #   - The 'load-config' job parses config.yml and makes values available to all other jobs
 #   - JRE URLs, GitHub settings, and org info are all loaded from config.yml
-#   - To update settings, edit .github/config.yml - changes will be picked up automatically
+#   - To update settings, edit config.yml - changes will be picked up automatically
 #   - No need to edit this workflow file when changing JRE URLs or other config values!
 #
 # ============================================================================
@@ -54,7 +54,7 @@ env:
 
 jobs:
   # ===========================================================================
-  # Load Configuration (reads from .github/config.yml)
+  # Load Configuration (reads from config.yml)
   # ===========================================================================
   load-config:
     name: Load Configuration
@@ -80,7 +80,7 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-          CONFIG_FILE=".github/config.yml"
+          CONFIG_FILE="config.yml"
 
           echo "Parsing configuration from $CONFIG_FILE..."
 
@@ -177,7 +177,7 @@ jobs:
 
       - name: Download JRE 8 x64 (Windows)
         run: |
-          # JRE URL loaded from .github/config.yml (build.jre.windows_x64)
+          # JRE URL loaded from config.yml (build.jre.windows_x64)
           $JRE_URL = "${{ needs.load-config.outputs.jre_windows_x64 }}"
           $JRE_ZIP = "jre8-x64.zip"
           $JRE_DIR = "distributions\windows\jre8-x64"
@@ -256,7 +256,7 @@ jobs:
 
       - name: Download JRE 8 x86 (Windows)
         run: |
-          # JRE URL loaded from .github/config.yml (build.jre.windows_x86)
+          # JRE URL loaded from config.yml (build.jre.windows_x86)
           $JRE_URL = "${{ needs.load-config.outputs.jre_windows_x86 }}"
           $JRE_ZIP = "jre8-x86.zip"
           $JRE_DIR = "distributions\windows\jre8-x86"
@@ -335,7 +335,7 @@ jobs:
 
       - name: Download JRE 8 x64 (Linux)
         run: |
-          # JRE URL loaded from .github/config.yml (build.jre.linux_x64)
+          # JRE URL loaded from config.yml (build.jre.linux_x64)
           JRE_URL="${{ needs.load-config.outputs.jre_linux_x64 }}"
           JRE_DIR="distributions/linux/jre8-x64"
 
@@ -437,7 +437,7 @@ jobs:
 
       - name: Download JRE 8 x86 (Linux)
         run: |
-          # JRE URL loaded from .github/config.yml (build.jre.linux_x86)
+          # JRE URL loaded from config.yml (build.jre.linux_x86)
           # Note: Adoptium does NOT provide x86 Linux JRE, using Azul Zulu instead
           JRE_URL="${{ needs.load-config.outputs.jre_linux_x86 }}"
           JRE_DIR="distributions/linux/jre8-x86"
@@ -550,7 +550,7 @@ jobs:
 
       - name: Download JRE 8 x64 (macOS)
         run: |
-          # JRE URL loaded from .github/config.yml (build.jre.macos_x64)
+          # JRE URL loaded from config.yml (build.jre.macos_x64)
           JRE_URL="${{ needs.load-config.outputs.jre_macos_x64 }}"
           JRE_DIR="distributions/macos/jre8-x64"
 
@@ -840,22 +840,22 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
 
-          # Try to extract version-specific notes from .github/config.yml
-          if [ -f ".github/config.yml" ]; then
+          # Try to extract version-specific notes from config.yml
+          if [ -f "config.yml" ]; then
             echo "Found config.yml, extracting release notes for version $VERSION..."
 
             # Check if release_notes section exists for this version
-            if yq eval ".release_notes.\"$VERSION\"" .github/config.yml | grep -q "null"; then
+            if yq eval ".release_notes.\"$VERSION\"" config.yml | grep -q "null"; then
               echo "No release notes found for version $VERSION in config.yml"
               echo "has_custom=false" >> $GITHUB_OUTPUT
             else
-              echo "✓ Found release notes for version $VERSION"
+              echo "[OK] Found release notes for version $VERSION"
 
               # Build formatted changelog from YAML structure
               CHANGELOG_CONTENT=""
 
               # Extract and format "fixed" section
-              FIXED_ITEMS=$(yq eval ".release_notes.\"$VERSION\".fixed[]" .github/config.yml 2>/dev/null)
+              FIXED_ITEMS=$(yq eval ".release_notes.\"$VERSION\".fixed[]" config.yml 2>/dev/null)
               if [ -n "$FIXED_ITEMS" ]; then
                 CHANGELOG_CONTENT+="### Fixed"$'\n'$'\n'
                 while IFS= read -r line; do
@@ -865,7 +865,7 @@ jobs:
               fi
 
               # Extract and format "changed" section
-              CHANGED_ITEMS=$(yq eval ".release_notes.\"$VERSION\".changed[]" .github/config.yml 2>/dev/null)
+              CHANGED_ITEMS=$(yq eval ".release_notes.\"$VERSION\".changed[]" config.yml 2>/dev/null)
               if [ -n "$CHANGED_ITEMS" ]; then
                 CHANGELOG_CONTENT+="### Changed"$'\n'$'\n'
                 while IFS= read -r line; do
@@ -875,7 +875,7 @@ jobs:
               fi
 
               # Extract and format "added" section
-              ADDED_ITEMS=$(yq eval ".release_notes.\"$VERSION\".added[]" .github/config.yml 2>/dev/null)
+              ADDED_ITEMS=$(yq eval ".release_notes.\"$VERSION\".added[]" config.yml 2>/dev/null)
               if [ -n "$ADDED_ITEMS" ]; then
                 CHANGELOG_CONTENT+="### Added"$'\n'$'\n'
                 while IFS= read -r line; do

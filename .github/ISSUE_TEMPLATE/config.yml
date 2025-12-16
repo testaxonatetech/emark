@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 💬 Questions & Discussions
-    url: https://github.com/nicholasadamou/eMark/discussions
+    url: https://github.com/testaxonatetech/emark/discussions
     about: Ask questions and discuss ideas with the community.
   - name: 📖 Documentation
-    url: https://github.com/nicholasadamou/eMark#readme
+    url: https://github.com/testaxonatetech/emark#readme
     about: Check the documentation before opening an issue.
   - name: 🔒 Security Vulnerability
-    url: https://github.com/nicholasadamou/eMark/security/advisories/new
+    url: https://github.com/testaxonatetech/emark/security/advisories/new
     about: Report security vulnerabilities privately.
