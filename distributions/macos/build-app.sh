@@ -1,0 +1,258 @@
+#!/bin/bash
+# ============================================================================
+# eMark - macOS App Bundle Builder
+# TrexoLab - https://trexolab.com
+# ============================================================================
+#
+# This script creates three .app bundles for macOS with different memory profiles:
+#   - eMark.app (Normal - 2GB)
+#   - eMark Large.app (Large - 4GB)
+#   - eMark XLarge.app (Extra Large - 8GB)
+#
+# Prerequisites:
+#   - The JAR file at ../../target/eMark.jar
+#   - The JRE at ./jre8-x64/
+#
+# Usage:
+#   ./build-app.sh
+#
+# Output:
+#   ./output/eMark.app
+#   ./output/eMark Large.app
+#   ./output/eMark XLarge.app
+# ============================================================================
+
+set -e
+
+# Directories (defined first so VERSION file can be read)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# Configuration
+# Read version from VERSION file
+APP_VERSION=$(cat "$ROOT_DIR/VERSION" 2>/dev/null | tr -d '[:space:]' || echo "1.0.0")
+BUNDLE_ID_BASE="com.trexolab.emark"
+BUILD_DIR="$SCRIPT_DIR/build"
+OUTPUT_DIR="$SCRIPT_DIR/output"
+
+# Clean previous build
+rm -rf "$BUILD_DIR" "$OUTPUT_DIR"
+mkdir -p "$BUILD_DIR" "$OUTPUT_DIR"
+
+echo "============================================================================"
+echo " Building eMark macOS App Bundles"
+echo "============================================================================"
+echo " Version: $APP_VERSION"
+echo "============================================================================"
+
+# Function to create an app bundle with a specific memory profile
+create_app_bundle() {
+    local APP_NAME="$1"
+    local BUNDLE_ID="$2"
+    local DISPLAY_NAME="$3"
+    local MEMORY_PROFILE="$4"
+    local XMS="$5"
+    local XMX="$6"
+    local APP_DIR="$BUILD_DIR/$APP_NAME.app"
+
+    echo ""
+    echo "Creating $APP_NAME.app ($MEMORY_PROFILE profile - $XMX max heap)..."
+
+    # Create .app bundle structure
+    mkdir -p "$APP_DIR/Contents/MacOS"
+    mkdir -p "$APP_DIR/Contents/Resources"
+
+    # Create Info.plist with profile-specific settings
+    cat > "$APP_DIR/Contents/Info.plist" << PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+
+    <key>CFBundleExecutable</key>
+    <string>run-emark</string>
+
+    <key>CFBundleIconFile</key>
+    <string>emark.icns</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>$BUNDLE_ID</string>
+
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <key>CFBundleName</key>
+    <string>$DISPLAY_NAME</string>
+
+    <key>CFBundleDisplayName</key>
+    <string>$DISPLAY_NAME</string>
+
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>$APP_VERSION</string>
+
+    <key>CFBundleVersion</key>
+    <string>$APP_VERSION</string>
+
+    <key>CFBundleSignature</key>
+    <string>EMRK</string>
+
+    <key>LSMinimumSystemVersion</key>
+    <string>10.13</string>
+
+    <key>NSHighResolutionCapable</key>
+    <true/>
+
+    <key>NSSupportsAutomaticGraphicsSwitching</key>
+    <true/>
+
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.productivity</string>
+
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright 2024-2025 TrexoLab. All rights reserved.</string>
+
+    <key>NSPrincipalClass</key>
+    <string>NSApplication</string>
+
+    <key>NSAppleEventsUsageDescription</key>
+    <string>eMark needs to control other applications for PDF signing operations.</string>
+
+    <key>LSMultipleInstancesProhibited</key>
+    <true/>
+</dict>
+</plist>
+PLIST
+
+    # Create PkgInfo
+    echo "APPL????" > "$APP_DIR/Contents/PkgInfo"
+
+    # Create launcher script with embedded memory settings
+    cat > "$APP_DIR/Contents/MacOS/run-emark" << LAUNCHER
+#!/bin/bash
+# eMark - macOS Launcher ($MEMORY_PROFILE profile)
+# Handles PDF file open events from Finder
+
+# Get the directory where this script is located
+SCRIPT_DIR="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")" && pwd)"
+RESOURCES_DIR="\$(cd "\$SCRIPT_DIR/../Resources" && pwd)"
+
+# Bundled JRE location (macOS JRE structure)
+JAVA_EXE="\$RESOURCES_DIR/jre8-x64/Contents/Home/bin/java"
+
+# Fallback for standard JRE structure
+if [ ! -x "\$JAVA_EXE" ]; then
+    JAVA_EXE="\$RESOURCES_DIR/jre8-x64/bin/java"
+fi
+
+# JAR file location
+JAR_FILE="\$RESOURCES_DIR/eMark.jar"
+
+# Validate bundled Java runtime exists
+if [ ! -x "\$JAVA_EXE" ]; then
+    osascript -e 'display dialog "Java Runtime Not Found\n\nThe bundled Java 8 runtime was not found.\n\nPlease reinstall eMark." buttons {"OK"} default button "OK" with icon stop with title "eMark"'
+    exit 1
+fi
+
+# Validate JAR file exists
+if [ ! -f "\$JAR_FILE" ]; then
+    osascript -e 'display dialog "Application Not Found\n\nThe application JAR file was not found.\n\nPlease reinstall eMark." buttons {"OK"} default button "OK" with icon stop with title "eMark"'
+    exit 1
+fi
+
+# Memory profile: $MEMORY_PROFILE ($XMX max heap)
+JAVA_OPTS="-Xms$XMS -Xmx$XMX -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+
+# macOS-specific Java options
+JAVA_OPTS="\$JAVA_OPTS -Xdock:name=$DISPLAY_NAME"
+JAVA_OPTS="\$JAVA_OPTS -Dapple.awt.application.name=$DISPLAY_NAME"
+JAVA_OPTS="\$JAVA_OPTS -Dapple.laf.useScreenMenuBar=true"
+
+# Add dock icon if available
+if [ -f "\$RESOURCES_DIR/emark.icns" ]; then
+    JAVA_OPTS="\$JAVA_OPTS -Xdock:icon=\$RESOURCES_DIR/emark.icns"
+fi
+
+# Launch the application with any file arguments
+exec "\$JAVA_EXE" \$JAVA_OPTS -jar "\$JAR_FILE" "\$@"
+LAUNCHER
+    chmod +x "$APP_DIR/Contents/MacOS/run-emark"
+
+    # Copy application files to Resources
+    cp "$ROOT_DIR/target/eMark.jar" "$APP_DIR/Contents/Resources/"
+
+    # Copy JRE (use symlinks for subsequent apps to save space during build)
+    if [ "$MEMORY_PROFILE" = "Normal" ]; then
+        # First app - copy the actual JRE
+        if [ -d "$SCRIPT_DIR/jre8-x64" ]; then
+            cp -r "$SCRIPT_DIR/jre8-x64" "$APP_DIR/Contents/Resources/"
+
+            # Make Java executables executable
+            find "$APP_DIR/Contents/Resources/jre8-x64" -name "java" -o -name "java*" -type f 2>/dev/null | xargs chmod +x 2>/dev/null || true
+
+            if [ -d "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin" ]; then
+                chmod +x "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin/"* 2>/dev/null || true
+            fi
+            if [ -d "$APP_DIR/Contents/Resources/jre8-x64/bin" ]; then
+                chmod +x "$APP_DIR/Contents/Resources/jre8-x64/bin/"* 2>/dev/null || true
+            fi
+        fi
+    else
+        # Subsequent apps - copy from first app
+        if [ -d "$BUILD_DIR/eMark.app/Contents/Resources/jre8-x64" ]; then
+            cp -r "$BUILD_DIR/eMark.app/Contents/Resources/jre8-x64" "$APP_DIR/Contents/Resources/"
+        fi
+    fi
+
+    # Copy branding icon
+    if [ -f "$SCRIPT_DIR/emark.icns" ]; then
+        cp "$SCRIPT_DIR/emark.icns" "$APP_DIR/Contents/Resources/"
+    elif [ -f "$SCRIPT_DIR/emark.png" ]; then
+        cp "$SCRIPT_DIR/emark.png" "$APP_DIR/Contents/Resources/"
+    fi
+
+    # Move to output
+    mv "$APP_DIR" "$OUTPUT_DIR/"
+
+    echo "  Created: $OUTPUT_DIR/$APP_NAME.app"
+}
+
+# Check prerequisites
+if [ ! -f "$ROOT_DIR/target/eMark.jar" ]; then
+    echo "ERROR: JAR file not found at $ROOT_DIR/target/eMark.jar"
+    echo "Please build the project first with: mvn package"
+    exit 1
+fi
+
+if [ ! -d "$SCRIPT_DIR/jre8-x64" ]; then
+    echo "WARNING: JRE not found at $SCRIPT_DIR/jre8-x64"
+    echo "The app bundles will be created without bundled JRE."
+fi
+
+# Create all three app bundles
+create_app_bundle "eMark" "$BUNDLE_ID_BASE" "eMark" "Normal" "512m" "2g"
+create_app_bundle "eMark Large" "$BUNDLE_ID_BASE.large" "eMark Large" "Large" "512m" "4g"
+create_app_bundle "eMark XLarge" "$BUNDLE_ID_BASE.xlarge" "eMark XLarge" "XLarge" "1g" "8g"
+
+# Clean up build directory
+rm -rf "$BUILD_DIR"
+
+echo ""
+echo "============================================================================"
+echo " App bundles built successfully!"
+echo "============================================================================"
+echo " Output:"
+echo "   - $OUTPUT_DIR/eMark.app (Normal - 2GB max)"
+echo "   - $OUTPUT_DIR/eMark Large.app (Large - 4GB max)"
+echo "   - $OUTPUT_DIR/eMark XLarge.app (Extra Large - 8GB max)"
+echo ""
+echo " To install:"
+echo "   1. Drag the desired app(s) to /Applications"
+echo "   2. Right-click and select 'Open' on first launch"
+echo ""
+echo " To create DMG, run: ./build-dmg.sh"
+echo "============================================================================"

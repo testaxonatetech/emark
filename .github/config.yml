@@ -1,0 +1,150 @@
+# ============================================================================
+# eMark - Centralized Repository Configuration
+# Single Source of Truth for all repository and organization settings
+# ============================================================================
+#
+# This file contains all configurable values for:
+# - GitHub repository information
+# - Organization details
+# - Website URLs
+# - Contact information
+# - Build/release settings
+#
+# Update this file to change settings across the entire project.
+# ============================================================================
+
+# =============================================================================
+# GitHub Repository Configuration
+# =============================================================================
+github:
+  owner: "testaxonatetech"           # GitHub username/organization
+  repo: "emark"                      # Repository name
+
+  # Full repository URL (auto-generated from owner/repo)
+  repo_url: "https://github.com/testaxonatetech/emark"
+
+  # GitHub Pages URL
+  pages_url: "https://testaxonatetech.github.io/emark"
+
+  # API base URL (auto-generated)
+  api_url: "https://api.github.com/repos/testaxonatetech/emark"
+
+# =============================================================================
+# Organization/Author Information
+# =============================================================================
+organization:
+  name: "TrexoLab"
+  email: "contact@trexolab.com"
+  website: "https://trexolab.com"
+  twitter: "@trexolab"
+
+  # Copyright
+  copyright_year_start: "2024"
+  copyright_year_current: "2025"
+  copyright_text: "Copyright © 2024-2025 TrexoLab. All rights reserved."
+
+# =============================================================================
+# Application Information
+# =============================================================================
+application:
+  name: "eMark"
+  full_name: "eMark - Advanced PDF Signing Application"
+  description: "Advanced PDF Signing Application by TrexoLab"
+  version_file: "VERSION"  # Path to version file
+
+  # Package/Bundle identifiers
+  maven:
+    group_id: "com.trexolab"
+    artifact_id: "eMark"
+
+  macos:
+    bundle_id: "com.trexolab.emark"
+
+  windows:
+    publisher: "TrexoLab"
+    install_dir: "TrexoLab\\eMark"
+
+# =============================================================================
+# Build Configuration
+# =============================================================================
+build:
+  java:
+    version: "8"
+    distribution: "temurin"
+
+  # JRE URLs (Adoptium Temurin 8u432-b06)
+  jre:
+    windows_x64: "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u432-b06/OpenJDK8U-jre_x64_windows_hotspot_8u432b06.zip"
+    windows_x86: "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u432-b06/OpenJDK8U-jre_x86-32_windows_hotspot_8u432b06.zip"
+    linux_x64: "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u432-b06/OpenJDK8U-jre_x64_linux_hotspot_8u432b06.tar.gz"
+    linux_x86: "https://cdn.azul.com/zulu/bin/zulu8.82.0.21-ca-jre8.0.432-linux_i686.tar.gz"
+    macos_x64: "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u432-b06/OpenJDK8U-jre_x64_mac_hotspot_8u432b06.tar.gz"
+
+# =============================================================================
+# Contact & Support URLs
+# =============================================================================
+urls:
+  # Documentation
+  documentation: "https://testaxonatetech.github.io/emark/#/installation"
+  wiki: "https://github.com/testaxonatetech/emark/wiki"
+
+  # Community
+  discussions: "https://github.com/testaxonatetech/emark/discussions"
+  issues: "https://github.com/testaxonatetech/emark/issues"
+  security: "https://github.com/testaxonatetech/emark/security/advisories/new"
+
+  # Releases
+  releases: "https://github.com/testaxonatetech/emark/releases"
+  latest_release: "https://github.com/testaxonatetech/emark/releases/latest"
+
+  # Downloads (latest artifacts)
+  downloads:
+    windows_x64: "https://github.com/testaxonatetech/emark/releases/latest/download/emark-x64-setup.exe"
+    windows_x86: "https://github.com/testaxonatetech/emark/releases/latest/download/emark-x86-setup.exe"
+    linux_x64_deb: "https://github.com/testaxonatetech/emark/releases/latest/download/emark-x64.deb"
+    linux_x86_deb: "https://github.com/testaxonatetech/emark/releases/latest/download/emark-x86.deb"
+    linux_x64_tar: "https://github.com/testaxonatetech/emark/releases/latest/download/emark-x64-linux.tar.gz"
+    linux_x86_tar: "https://github.com/testaxonatetech/emark/releases/latest/download/emark-x86-linux.tar.gz"
+    macos_dmg: "https://github.com/testaxonatetech/emark/releases/latest/download/emark-x64-macos.dmg"
+    jar: "https://github.com/testaxonatetech/emark/releases/latest/download/eMark.jar"
+
+# =============================================================================
+# Installer Configuration
+# =============================================================================
+installer:
+  # Linux DEB package metadata
+  linux:
+    maintainer: "TrexoLab <contact@trexolab.com>"
+    homepage: "https://testaxonatetech.github.io/emark/"
+    section: "utils"
+    priority: "optional"
+
+  # Windows installer metadata
+  windows:
+    publisher: "TrexoLab"
+    publisher_url: "https://trexolab.com"
+    app_url: "https://testaxonatetech.github.io/emark/"
+
+# =============================================================================
+# Social Media & Branding
+# =============================================================================
+social:
+  twitter:
+    site: "@trexolab"
+    creator: "@trexolab"
+
+  # Open Graph / Social sharing images
+  og_image: "https://testaxonatetech.github.io/emark/assets/og-image.png"
+  logo: "https://testaxonatetech.github.io/emark/images/logo.png"
+
+# =============================================================================
+# Notes
+# =============================================================================
+# To update the GitHub username/organization across the entire project:
+# 1. Change the 'github.owner' field above
+# 2. Update generated URLs accordingly (or use scripts to auto-generate)
+# 3. Run find-and-replace across the project if needed
+#
+# This config file should be the authoritative source for all settings.
+# Consider creating scripts to read from this file and update other configs.
+# =============================================================================
