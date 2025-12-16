@@ -154,7 +154,21 @@ JAR_FILE="\$RESOURCES_DIR/eMark.jar"
 
 # Validate bundled Java runtime exists
 if [ ! -x "\$JAVA_EXE" ]; then
-    osascript -e 'display dialog "Java Runtime Not Found\n\nThe bundled Java 8 runtime was not found.\n\nPlease reinstall eMark." buttons {"OK"} default button "OK" with icon stop with title "eMark"'
+    # Show detailed error with path information
+    ERROR_MSG="Java Runtime Not Found
+
+The bundled Java 8 runtime was not found at:
+\$JAVA_EXE
+
+This usually means the app was not built correctly.
+
+Please download a fresh copy from:
+https://github.com/testaxonatetech/emark/releases/latest
+
+If the problem persists, please report it at:
+https://github.com/testaxonatetech/emark/issues"
+
+    osascript -e "display dialog \"\$ERROR_MSG\" buttons {\"OK\"} default button \"OK\" with icon stop with title \"eMark - Runtime Error\""
     exit 1
 fi
 
@@ -188,24 +202,46 @@ LAUNCHER
     # Copy JRE (use symlinks for subsequent apps to save space during build)
     if [ "$MEMORY_PROFILE" = "Normal" ]; then
         # First app - copy the actual JRE
-        if [ -d "$SCRIPT_DIR/jre8-x64" ]; then
-            cp -r "$SCRIPT_DIR/jre8-x64" "$APP_DIR/Contents/Resources/"
-
-            # Make Java executables executable
-            find "$APP_DIR/Contents/Resources/jre8-x64" -name "java" -o -name "java*" -type f 2>/dev/null | xargs chmod +x 2>/dev/null || true
-
-            if [ -d "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin" ]; then
-                chmod +x "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin/"* 2>/dev/null || true
-            fi
-            if [ -d "$APP_DIR/Contents/Resources/jre8-x64/bin" ]; then
-                chmod +x "$APP_DIR/Contents/Resources/jre8-x64/bin/"* 2>/dev/null || true
-            fi
+        if [ ! -d "$SCRIPT_DIR/jre8-x64" ]; then
+            echo "ERROR: JRE not found at $SCRIPT_DIR/jre8-x64"
+            echo "Cannot create app bundle without bundled Java runtime."
+            exit 1
         fi
+
+        echo "  Bundling JRE from $SCRIPT_DIR/jre8-x64..."
+        cp -r "$SCRIPT_DIR/jre8-x64" "$APP_DIR/Contents/Resources/"
+
+        # Make Java executables executable
+        find "$APP_DIR/Contents/Resources/jre8-x64" -name "java" -o -name "java*" -type f 2>/dev/null | xargs chmod +x 2>/dev/null || true
+
+        if [ -d "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin" ]; then
+            chmod +x "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin/"* 2>/dev/null || true
+        fi
+        if [ -d "$APP_DIR/Contents/Resources/jre8-x64/bin" ]; then
+            chmod +x "$APP_DIR/Contents/Resources/jre8-x64/bin/"* 2>/dev/null || true
+        fi
+
+        # Verify JRE was copied successfully
+        if [ ! -d "$APP_DIR/Contents/Resources/jre8-x64" ]; then
+            echo "ERROR: Failed to copy JRE to app bundle"
+            exit 1
+        fi
+        echo "  JRE bundled successfully"
     else
         # Subsequent apps - copy from first app
-        if [ -d "$BUILD_DIR/eMark.app/Contents/Resources/jre8-x64" ]; then
-            cp -r "$BUILD_DIR/eMark.app/Contents/Resources/jre8-x64" "$APP_DIR/Contents/Resources/"
+        if [ ! -d "$BUILD_DIR/eMark.app/Contents/Resources/jre8-x64" ]; then
+            echo "ERROR: JRE not found in first app bundle"
+            exit 1
         fi
+        echo "  Copying JRE from first app bundle..."
+        cp -r "$BUILD_DIR/eMark.app/Contents/Resources/jre8-x64" "$APP_DIR/Contents/Resources/"
+
+        # Verify JRE was copied successfully
+        if [ ! -d "$APP_DIR/Contents/Resources/jre8-x64" ]; then
+            echo "ERROR: Failed to copy JRE to app bundle"
+            exit 1
+        fi
+        echo "  JRE bundled successfully"
     fi
 
     # Copy branding icon
@@ -229,8 +265,16 @@ if [ ! -f "$ROOT_DIR/target/eMark.jar" ]; then
 fi
 
 if [ ! -d "$SCRIPT_DIR/jre8-x64" ]; then
-    echo "WARNING: JRE not found at $SCRIPT_DIR/jre8-x64"
-    echo "The app bundles will be created without bundled JRE."
+    echo "ERROR: JRE not found at $SCRIPT_DIR/jre8-x64"
+    echo ""
+    echo "The macOS installer requires a bundled JRE."
+    echo "Please download and extract it first:"
+    echo ""
+    echo "  curl -L -o jre8-x64.tar.gz https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u432-b06/OpenJDK8U-jre_x64_mac_hotspot_8u432b06.tar.gz"
+    echo "  tar -xzf jre8-x64.tar.gz"
+    echo "  mv jdk8u432-b06-jre jre8-x64"
+    echo ""
+    exit 1
 fi
 
 # Create all three app bundles
