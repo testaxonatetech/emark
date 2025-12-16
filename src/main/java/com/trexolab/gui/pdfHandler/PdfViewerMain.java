@@ -355,56 +355,33 @@ public class PdfViewerMain extends JFrame {
     }
 
     private void openPdf() {
-        // Use native macOS FileDialog on Mac for better file system access
+        // Use JFileChooser for all platforms with macOS-specific configuration
+        JFileChooser chooser = new JFileChooser();
+
+        String lastDir = prefs.get(LAST_DIR_KEY, null);
+        if (lastDir != null) {
+            chooser.setCurrentDirectory(new File(lastDir));
+        }
+
+        // Configure file filter for PDF files
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
+        chooser.setAcceptAllFileFilterUsed(false);
+
+        // macOS-specific: Enable file system access with proper settings
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            FileDialog fileDialog = new FileDialog(this, "Open PDF", FileDialog.LOAD);
-            String lastDir = prefs.get(LAST_DIR_KEY, null);
-            if (lastDir != null) {
-                fileDialog.setDirectory(lastDir);
+            // Use system properties already set in App.java for native look and feel
+            chooser.setFileHidingEnabled(false); // Show hidden files if needed
+            chooser.setMultiSelectionEnabled(false);
+        }
+
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            selectedPdfFile = chooser.getSelectedFile();
+
+            File parentDir = selectedPdfFile.getParentFile();
+            if (parentDir != null) {
+                prefs.put(LAST_DIR_KEY, parentDir.getAbsolutePath());
             }
-
-            // On macOS, don't use FilenameFilter - it interferes with file selection
-            // The native dialog will show all files, and we'll validate after selection
-
-            // Make the dialog modal and show it
-            fileDialog.setVisible(true);
-
-            String selectedFile = fileDialog.getFile();
-            String selectedDir = fileDialog.getDirectory();
-
-            if (selectedFile != null && selectedDir != null) {
-                selectedPdfFile = new File(selectedDir, selectedFile);
-
-                // Validate that the selected file is a PDF
-                if (!selectedFile.toLowerCase().endsWith(".pdf")) {
-                    JOptionPane.showMessageDialog(this,
-                        "Please select a PDF file.",
-                        "Invalid File Type",
-                        JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                prefs.put(LAST_DIR_KEY, selectedDir);
-                loadAndRenderPdf(selectedPdfFile);
-            }
-        } else {
-            // Use JFileChooser on other platforms
-            JFileChooser chooser = new JFileChooser();
-            String lastDir = prefs.get(LAST_DIR_KEY, null);
-            if (lastDir != null) {
-                chooser.setCurrentDirectory(new File(lastDir));
-            }
-            chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
-
-            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                selectedPdfFile = chooser.getSelectedFile();
-
-                File parentDir = selectedPdfFile.getParentFile();
-                if (parentDir != null) {
-                    prefs.put(LAST_DIR_KEY, parentDir.getAbsolutePath());
-                }
-                loadAndRenderPdf(selectedPdfFile);
-            }
+            loadAndRenderPdf(selectedPdfFile);
         }
     }
 

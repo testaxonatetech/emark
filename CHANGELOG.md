@@ -20,12 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- macOS file selection issue where PDF files were visible but not selectable in native FileDialog
-- Removed FilenameFilter that was interfering with macOS file dialog functionality
+- macOS file selection issue where PDF files in Documents and other protected folders are now accessible
+- JFileChooser now properly shows and allows selection of PDF files on macOS
 
 ### Changed
 
-- macOS now uses post-selection validation instead of filename filtering for better compatibility
+- Switched from native macOS FileDialog back to Java-based JFileChooser for consistent cross-platform behavior
+- Unified file selection dialog across all platforms (Windows, Linux, macOS) using JFileChooser
 
 ## [1.0.5] - 2025-01-XX
 
