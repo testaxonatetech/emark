@@ -14,8 +14,8 @@ public class PlaceholderPanel extends JPanel {
         setOpaque(true); // respects FlatLaf theme
         setBackground(null); // use default background from FlatLaf
 
-        // Icon label - professional visual indicator
-        JLabel iconLabel = new JLabel("\ud83d\udcc4");
+        // Icon label - professional visual indicator (using Unicode box drawing for cross-platform compatibility)
+        JLabel iconLabel = new JLabel("□");
         iconLabel.setFont(iconLabel.getFont().deriveFont(Font.PLAIN, 72f));
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         iconLabel.setForeground(new Color(180, 180, 180));
@@ -32,10 +32,10 @@ public class PlaceholderPanel extends JPanel {
         subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         subtitleLabel.setForeground(new Color(120, 120, 120));
 
-        JLabel subtitleLabel2 = new JLabel("💡 Enjoy a secure, reliable, and completely free experience.");
+        JLabel subtitleLabel2 = new JLabel("Enjoy a secure, reliable, and completely free experience.");
         subtitleLabel2.setFont(subtitleLabel.getFont().deriveFont(Font.BOLD, 16f));
         subtitleLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        subtitleLabel2.setForeground(new Color(255, 237, 107, 255)); // subtle white for dark UI
+        subtitleLabel2.setForeground(new Color(255, 237, 107, 255)); // subtle yellow for visibility
 
 
         // Open PDF button - use FlatLaf default button styling

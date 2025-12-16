@@ -886,11 +886,11 @@ jobs:
 
             ---
 
+            🛸 Other Changes
+
             ${{ steps.extract_changelog.outputs.has_custom == 'true' && steps.extract_changelog.outputs.custom_notes || '' }}
 
-            ${{ steps.extract_changelog.outputs.has_custom == 'false' && steps.changelog.outputs.changes || '' }}
-
-            ${{ steps.extract_changelog.outputs.has_custom == 'false' && steps.changelog.outputs.changes == '' && steps.default_changelog.outputs.changes || '' }}
+            ${{ steps.changelog.outputs.changes || steps.default_changelog.outputs.changes || '' }}
 
             ---
 

@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Document changes here
 
+## [1.0.8] - 2025-01-XX
+
+### Fixed
+
+- macOS file selection now fully accessible with Java-based JFileChooser
+- PDF files in Documents, Downloads, Desktop and other protected folders can be opened and signed
+- Emoji characters not displaying properly on macOS replaced with Unicode symbols
+
+### Changed
+
+- Unified file selection across all platforms using JFileChooser for consistent user experience
+- Removed platform-specific file dialog implementations in favor of single Java-based solution
+- Replaced emojis with cross-platform compatible Unicode characters for better display
+
 ## [1.0.6] - 2025-01-XX
 
 ### Fixed
@@ -86,7 +100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cross-platform support (Windows, Linux, macOS)
 - Bundled JRE installers for all platforms
 
-[Unreleased]: https://github.com/testaxonatetech/emark/compare/v1.0.6...HEAD
+[Unreleased]: https://github.com/testaxonatetech/emark/compare/v1.0.8...HEAD
+[1.0.8]: https://github.com/testaxonatetech/emark/compare/v1.0.6...v1.0.8
 [1.0.6]: https://github.com/testaxonatetech/emark/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/testaxonatetech/emark/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/testaxonatetech/emark/compare/v1.0.3...v1.0.4
