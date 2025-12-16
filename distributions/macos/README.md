@@ -48,21 +48,19 @@ rm jre8-x64.tar.gz
 
 ## Build Process
 
-### Step 1: Build App Bundles
+### Step 1: Build App Bundle
 
 ```bash
 ./build-app.sh
 ```
 
-This creates three `.app` bundles in `output/`:
-- `eMark.app` - Normal (2GB max memory)
-- `eMark Large.app` - Large (4GB max memory)
-- `eMark XLarge.app` - Extra Large (8GB max memory)
+This creates a single `.app` bundle in `output/`:
+- `eMark.app` - 4GB max memory
 
-Each bundle is self-contained with:
+The bundle is self-contained with:
 - The eMark JAR file
 - Bundled Java 8 JRE
-- Launch scripts for each memory profile
+- Launch script with 4GB memory configuration
 - Application icons
 
 ### Step 2: Build DMG Installer
@@ -72,7 +70,7 @@ Each bundle is self-contained with:
 ```
 
 This creates `output/emark-x64-macos.dmg` containing:
-- All three app bundles
+- eMark.app (4GB max memory)
 - Installation script with version checking
 - README with instructions
 - Applications folder symlink
@@ -162,25 +160,13 @@ The automated build process (`.github/workflows/build-installers.yml`) does:
 6. Verifies JRE is bundled in the final apps
 7. Uploads the DMG as an artifact
 
-## Memory Profiles
+## Memory Configuration
 
-### eMark.app (Normal)
-- Initial heap: 512MB
-- Maximum heap: 2GB
-- Best for: Most PDFs up to 50MB
-
-### eMark Large.app
+### eMark.app
 - Initial heap: 512MB
 - Maximum heap: 4GB
-- Best for: Large PDFs (50-200MB)
-
-### eMark XLarge.app
-- Initial heap: 1GB
-- Maximum heap: 8GB
-- Best for: Very large PDFs (200MB+)
-- Requires: Mac with 16GB+ RAM
-
-All three versions can coexist in `/Applications` as they have different bundle IDs.
+- Best for: PDFs up to 200MB
+- Requires: Mac with 8GB+ RAM recommended
 
 ## Resources
 

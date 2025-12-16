@@ -4,10 +4,8 @@
 # TrexoLab - https://trexolab.com
 # ============================================================================
 #
-# This script creates three .app bundles for macOS with different memory profiles:
-#   - eMark.app (Normal - 2GB)
-#   - eMark Large.app (Large - 4GB)
-#   - eMark XLarge.app (Extra Large - 8GB)
+# This script creates a single .app bundle for macOS:
+#   - eMark.app (4GB max memory)
 #
 # Prerequisites:
 #   - The JAR file at ../../target/eMark.jar
@@ -18,8 +16,6 @@
 #
 # Output:
 #   ./output/eMark.app
-#   ./output/eMark Large.app
-#   ./output/eMark XLarge.app
 # ============================================================================
 
 set -e
@@ -40,9 +36,10 @@ rm -rf "$BUILD_DIR" "$OUTPUT_DIR"
 mkdir -p "$BUILD_DIR" "$OUTPUT_DIR"
 
 echo "============================================================================"
-echo " Building eMark macOS App Bundles"
+echo " Building eMark macOS App Bundle"
 echo "============================================================================"
 echo " Version: $APP_VERSION"
+echo " Memory: 4GB max heap"
 echo "============================================================================"
 
 # Function to create an app bundle with a specific memory profile
@@ -199,50 +196,32 @@ LAUNCHER
     # Copy application files to Resources
     cp "$ROOT_DIR/target/eMark.jar" "$APP_DIR/Contents/Resources/"
 
-    # Copy JRE (use symlinks for subsequent apps to save space during build)
-    if [ "$MEMORY_PROFILE" = "Normal" ]; then
-        # First app - copy the actual JRE
-        if [ ! -d "$SCRIPT_DIR/jre8-x64" ]; then
-            echo "ERROR: JRE not found at $SCRIPT_DIR/jre8-x64"
-            echo "Cannot create app bundle without bundled Java runtime."
-            exit 1
-        fi
-
-        echo "  Bundling JRE from $SCRIPT_DIR/jre8-x64..."
-        cp -r "$SCRIPT_DIR/jre8-x64" "$APP_DIR/Contents/Resources/"
-
-        # Make Java executables executable
-        find "$APP_DIR/Contents/Resources/jre8-x64" -name "java" -o -name "java*" -type f 2>/dev/null | xargs chmod +x 2>/dev/null || true
-
-        if [ -d "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin" ]; then
-            chmod +x "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin/"* 2>/dev/null || true
-        fi
-        if [ -d "$APP_DIR/Contents/Resources/jre8-x64/bin" ]; then
-            chmod +x "$APP_DIR/Contents/Resources/jre8-x64/bin/"* 2>/dev/null || true
-        fi
-
-        # Verify JRE was copied successfully
-        if [ ! -d "$APP_DIR/Contents/Resources/jre8-x64" ]; then
-            echo "ERROR: Failed to copy JRE to app bundle"
-            exit 1
-        fi
-        echo "  JRE bundled successfully"
-    else
-        # Subsequent apps - copy from first app
-        if [ ! -d "$BUILD_DIR/eMark.app/Contents/Resources/jre8-x64" ]; then
-            echo "ERROR: JRE not found in first app bundle"
-            exit 1
-        fi
-        echo "  Copying JRE from first app bundle..."
-        cp -r "$BUILD_DIR/eMark.app/Contents/Resources/jre8-x64" "$APP_DIR/Contents/Resources/"
-
-        # Verify JRE was copied successfully
-        if [ ! -d "$APP_DIR/Contents/Resources/jre8-x64" ]; then
-            echo "ERROR: Failed to copy JRE to app bundle"
-            exit 1
-        fi
-        echo "  JRE bundled successfully"
+    # Copy JRE
+    if [ ! -d "$SCRIPT_DIR/jre8-x64" ]; then
+        echo "ERROR: JRE not found at $SCRIPT_DIR/jre8-x64"
+        echo "Cannot create app bundle without bundled Java runtime."
+        exit 1
     fi
+
+    echo "  Bundling JRE from $SCRIPT_DIR/jre8-x64..."
+    cp -r "$SCRIPT_DIR/jre8-x64" "$APP_DIR/Contents/Resources/"
+
+    # Make Java executables executable
+    find "$APP_DIR/Contents/Resources/jre8-x64" -name "java" -o -name "java*" -type f 2>/dev/null | xargs chmod +x 2>/dev/null || true
+
+    if [ -d "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin" ]; then
+        chmod +x "$APP_DIR/Contents/Resources/jre8-x64/Contents/Home/bin/"* 2>/dev/null || true
+    fi
+    if [ -d "$APP_DIR/Contents/Resources/jre8-x64/bin" ]; then
+        chmod +x "$APP_DIR/Contents/Resources/jre8-x64/bin/"* 2>/dev/null || true
+    fi
+
+    # Verify JRE was copied successfully
+    if [ ! -d "$APP_DIR/Contents/Resources/jre8-x64" ]; then
+        echo "ERROR: Failed to copy JRE to app bundle"
+        exit 1
+    fi
+    echo "  JRE bundled successfully"
 
     # Copy branding icon
     if [ -f "$SCRIPT_DIR/emark.icns" ]; then
@@ -277,25 +256,26 @@ if [ ! -d "$SCRIPT_DIR/jre8-x64" ]; then
     exit 1
 fi
 
-# Create all three app bundles
-create_app_bundle "eMark" "$BUNDLE_ID_BASE" "eMark" "Normal" "512m" "2g"
-create_app_bundle "eMark Large" "$BUNDLE_ID_BASE.large" "eMark Large" "Large" "512m" "4g"
-create_app_bundle "eMark XLarge" "$BUNDLE_ID_BASE.xlarge" "eMark XLarge" "XLarge" "1g" "8g"
+# Create app bundle with 4GB memory profile
+create_app_bundle "eMark" "$BUNDLE_ID_BASE" "eMark" "Standard" "512m" "4g"
 
 # Clean up build directory
 rm -rf "$BUILD_DIR"
 
 echo ""
 echo "============================================================================"
-echo " App bundles built successfully!"
+echo " App bundle built successfully!"
 echo "============================================================================"
 echo " Output:"
-echo "   - $OUTPUT_DIR/eMark.app (Normal - 2GB max)"
-echo "   - $OUTPUT_DIR/eMark Large.app (Large - 4GB max)"
-echo "   - $OUTPUT_DIR/eMark XLarge.app (Extra Large - 8GB max)"
+echo "   - $OUTPUT_DIR/eMark.app (4GB max memory)"
+echo ""
+echo " Memory Configuration:"
+echo "   - Initial heap: 512MB"
+echo "   - Maximum heap: 4GB"
+echo "   - Suitable for PDFs up to 200MB"
 echo ""
 echo " To install:"
-echo "   1. Drag the desired app(s) to /Applications"
+echo "   1. Drag eMark.app to /Applications"
 echo "   2. Right-click and select 'Open' on first launch"
 echo ""
 echo " To create DMG, run: ./build-dmg.sh"

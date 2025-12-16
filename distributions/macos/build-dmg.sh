@@ -4,13 +4,11 @@
 # TrexoLab - https://trexolab.com
 # ============================================================================
 #
-# This script creates a .dmg installer for macOS containing all three app bundles:
-#   - eMark.app (Normal - 2GB)
-#   - eMark Large.app (Large - 4GB)
-#   - eMark XLarge.app (Extra Large - 8GB)
+# This script creates a .dmg installer for macOS containing:
+#   - eMark.app (4GB max memory)
 #
 # Prerequisites:
-#   - Run build-app.sh first to create the .app bundles
+#   - Run build-app.sh first to create the .app bundle
 #   - hdiutil (built into macOS)
 #
 # Usage:
@@ -34,10 +32,8 @@ APP_VERSION=$(cat "$ROOT_DIR/VERSION" 2>/dev/null | tr -d '[:space:]' || echo "1
 OUTPUT_DIR="$SCRIPT_DIR/output"
 DMG_DIR="$SCRIPT_DIR/dmg-staging"
 
-# App paths
-APP_NORMAL="$OUTPUT_DIR/eMark.app"
-APP_LARGE="$OUTPUT_DIR/eMark Large.app"
-APP_XLARGE="$OUTPUT_DIR/eMark XLarge.app"
+# App path
+APP_PATH="$OUTPUT_DIR/eMark.app"
 
 echo "============================================================================"
 echo " Building eMark macOS DMG Installer"
@@ -45,24 +41,11 @@ echo "==========================================================================
 echo " Version: $APP_VERSION"
 echo "============================================================================"
 
-# Check if app bundles exist
-MISSING_APPS=0
-if [ ! -d "$APP_NORMAL" ]; then
-    echo "ERROR: eMark.app not found"
-    MISSING_APPS=1
-fi
-if [ ! -d "$APP_LARGE" ]; then
-    echo "ERROR: eMark Large.app not found"
-    MISSING_APPS=1
-fi
-if [ ! -d "$APP_XLARGE" ]; then
-    echo "ERROR: eMark XLarge.app not found"
-    MISSING_APPS=1
-fi
-
-if [ $MISSING_APPS -eq 1 ]; then
+# Check if app bundle exists
+if [ ! -d "$APP_PATH" ]; then
+    echo "ERROR: eMark.app not found at $APP_PATH"
     echo ""
-    echo "Please run build-app.sh first to create the app bundles."
+    echo "Please run build-app.sh first to create the app bundle."
     exit 1
 fi
 
@@ -73,13 +56,9 @@ mkdir -p "$DMG_DIR"
 
 echo "Preparing DMG contents..."
 
-# Copy all apps to staging
+# Copy app to staging
 echo "  Copying eMark.app..."
-cp -r "$APP_NORMAL" "$DMG_DIR/"
-echo "  Copying eMark Large.app..."
-cp -r "$APP_LARGE" "$DMG_DIR/"
-echo "  Copying eMark XLarge.app..."
-cp -r "$APP_XLARGE" "$DMG_DIR/"
+cp -r "$APP_PATH" "$DMG_DIR/"
 
 # Create Applications symlink
 ln -s /Applications "$DMG_DIR/Applications"
@@ -214,10 +193,8 @@ install_app() {
 echo "This script will install eMark to your Applications folder."
 echo "It will check for existing versions and handle upgrades safely."
 echo ""
-echo "Apps to install:"
-echo "  - eMark.app (Normal - 2GB max)"
-echo "  - eMark Large.app (Large - 4GB max)"
-echo "  - eMark XLarge.app (Extra Large - 8GB max)"
+echo "App to install:"
+echo "  - eMark.app (4GB max memory)"
 echo ""
 read -p "Do you want to continue? [Y/n] " -n 1 -r
 echo ""
@@ -227,10 +204,8 @@ if [[ \$REPLY =~ ^[Nn]\$ ]]; then
     exit 0
 fi
 
-# Install each app
+# Install app
 install_app "eMark.app"
-install_app "eMark Large.app"
-install_app "eMark XLarge.app"
 
 echo ""
 echo -e "\${GREEN}============================================================================\${NC}"
@@ -242,10 +217,10 @@ echo ""
 echo " On first launch, you may need to:"
 echo "   Right-click the app → Select 'Open' → Click 'Open' in the dialog"
 echo ""
-echo " Memory profiles:"
-echo "   - eMark.app:        Normal (2GB) - For most PDFs"
-echo "   - eMark Large.app:  Large (4GB) - For 50-200MB PDFs"
-echo "   - eMark XLarge.app: XLarge (8GB) - For 200MB+ PDFs"
+echo " Memory Configuration:"
+echo "   - Initial heap: 512MB"
+echo "   - Maximum heap: 4GB"
+echo "   - Suitable for PDFs up to 200MB"
 echo ""
 echo -e "\${GREEN}============================================================================\${NC}"
 echo ""
@@ -259,11 +234,7 @@ cat > "$DMG_DIR/README.txt" << EOF
  eMark $APP_VERSION - Installation Instructions
 ============================================================================
 
-This DMG contains three versions of eMark with different memory profiles:
-
-  - eMark.app         Normal (2GB max) - For PDFs up to 50MB
-  - eMark Large.app   Large (4GB max)  - For PDFs 50MB-200MB
-  - eMark XLarge.app  XLarge (8GB max) - For PDFs 200MB+
+This DMG contains eMark with 4GB maximum memory allocation.
 
 INSTALLATION:
 
@@ -276,24 +247,22 @@ Option 1: Using the Install Script (Recommended)
    - Remove quarantine attributes
 
 Option 2: Manual Drag and Drop
-   Drag the app(s) you need to the "Applications" folder
+   Drag eMark.app to the "Applications" folder
 
    On first launch:
    Right-click the app → Select "Open" → Click "Open" in the dialog
 
-WHICH VERSION SHOULD I USE?
+MEMORY CONFIGURATION:
 
-- Start with "eMark.app" (Normal) for most documents
-- Use "eMark Large.app" if you work with large PDFs (50-200MB)
-- Use "eMark XLarge.app" for very large PDFs (200MB+) - requires 16GB+ RAM
-
-TIP: You can install all three versions - they have different bundle IDs
-     and can coexist in your Applications folder.
+- Initial heap: 512MB
+- Maximum heap: 4GB
+- Suitable for PDFs up to 200MB
+- Requires at least 8GB system RAM
 
 SUPPORT:
 
-- Website: https://cispl-dev.github.io/emark/
-- GitHub: https://github.com/cispl-dev/emark
+- Website: https://testaxonatetech.github.io/emark/
+- GitHub: https://github.com/testaxonatetech/emark
 
 ============================================================================
 EOF
@@ -333,11 +302,9 @@ tell application "Finder"
         set theViewOptions to the icon view options of container window
         set arrangement of theViewOptions to not arranged
         set icon size of theViewOptions to 72
-        -- Position apps in a row
-        set position of item "eMark.app" of container window to {100, 150}
-        set position of item "eMark Large.app" of container window to {250, 150}
-        set position of item "eMark XLarge.app" of container window to {400, 150}
-        set position of item "Applications" of container window to {550, 150}
+        -- Position app and Applications link
+        set position of item "eMark.app" of container window to {150, 150}
+        set position of item "Applications" of container window to {450, 150}
         -- Position install script and README below
         set position of item "Install eMark.command" of container window to {200, 350}
         set position of item "README.txt" of container window to {400, 350}
@@ -372,10 +339,14 @@ echo " Output: $OUTPUT_DIR/$DMG_NAME.dmg"
 echo " Size: $(du -h "$OUTPUT_DIR/$DMG_NAME.dmg" | cut -f1)"
 echo ""
 echo " Contents:"
-echo "   - eMark.app (Normal - 2GB max)"
-echo "   - eMark Large.app (Large - 4GB max)"
-echo "   - eMark XLarge.app (Extra Large - 8GB max)"
+echo "   - eMark.app (4GB max memory)"
 echo "   - Install eMark.command (installer with version checking)"
+echo "   - README.txt (installation instructions)"
+echo ""
+echo " Memory Configuration:"
+echo "   - Initial heap: 512MB"
+echo "   - Maximum heap: 4GB"
+echo "   - Suitable for PDFs up to 200MB"
 echo ""
 echo " To install:"
 echo "   Option 1: Double-click 'Install eMark.command' (recommended)"
@@ -383,5 +354,5 @@ echo "             - Checks for existing versions"
 echo "             - Handles upgrades automatically"
 echo "             - Prevents accidental downgrades"
 echo ""
-echo "   Option 2: Drag desired app(s) to Applications folder"
+echo "   Option 2: Drag eMark.app to Applications folder"
 echo "============================================================================"
