@@ -23,6 +23,14 @@ public class App {
     static {
         System.setProperty("sun.security.pkcs11.disableNativeDialog", "true");
         System.setProperty("file.encoding", "UTF-8");
+
+        // macOS-specific properties for native file dialogs
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            // Enable native macOS file dialogs with proper permissions
+            System.setProperty("apple.awt.fileDialogForDirectories", "true");
+            System.setProperty("apple.awt.use-file-dialog-packages", "true");
+        }
+
         FlatMacDarkLaf.setup();
         UIManager.put("defaultFont", new Font("SansSerif", Font.PLAIN, 13));
     }

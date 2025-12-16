@@ -23,7 +23,8 @@ public class AppInitializer {
      * Initializes the application only once.
      */
     public static void initialize() {
-        if (initialized) return;
+        if (initialized)
+            return;
 
         ensureAppDirectories();
 
@@ -66,7 +67,6 @@ public class AppInitializer {
         timestampDetails.put("password", "");
         defaultConfig.setTimestampServer(timestampDetails);
 
-
         // Set default PKCS11 paths based on OS
         if (AppConstants.isLinux) {
             defaultConfig.pkcs11.add("/usr/lib/WatchData/ProxKey/lib/libwdpkcs_SignatureP11.so");
@@ -81,15 +81,13 @@ public class AppInitializer {
         log.info("Default config file created with platform-specific PKCS11 paths.");
     }
 
-
     private static Map<String, Boolean> getDefaultActiveStore() {
         Map<String, Boolean> activeStore = new HashMap<>();
         activeStore.put(AppConstants.WIN_KEY_STORE, AppConstants.isWindow);
-        activeStore.put(AppConstants.PKCS11_KEY_STORE, AppConstants.isLinux);
+        activeStore.put(AppConstants.PKCS11_KEY_STORE, AppConstants.isLinux || AppConstants.isMac);
         activeStore.put(AppConstants.SOFTHSM, AppConstants.isLinux || AppConstants.isMac);
 
         return activeStore;
     }
-
 
 }

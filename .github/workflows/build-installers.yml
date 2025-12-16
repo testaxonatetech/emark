@@ -821,14 +821,48 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
-          excludeTypes: ''
+          # Exclude certain commit types from changelog (empty = include all)
+          # Options: build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test
+          excludeTypes: 'build,ci,chore'
+          # Include all commits even if they don't follow conventional commit format
           includeInvalidCommits: true
+          # Reverse chronological order (newest first)
+          reverseOrder: true
 
       - name: Set default release notes for first release
         id: default_changelog
         if: steps.check_previous_tag.outputs.is_first_release == 'true'
         run: |
           echo "changes=Initial release of eMark - Advanced PDF Signing Application." >> $GITHUB_OUTPUT
+
+      - name: Extract custom changelog from CHANGELOG.md
+        id: extract_changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          # Try to extract version-specific notes from CHANGELOG.md if it exists
+          if [ -f "CHANGELOG.md" ]; then
+            echo "Found CHANGELOG.md, extracting notes for version $VERSION..."
+
+            # Extract section between ## [VERSION] and next ##
+            CHANGELOG_CONTENT=$(awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | sed '1d;$d' | sed '/^$/d')
+
+            if [ -n "$CHANGELOG_CONTENT" ]; then
+              echo "✓ Found custom changelog for version $VERSION"
+              {
+                echo "custom_notes<<EOF"
+                echo "$CHANGELOG_CONTENT"
+                echo "EOF"
+              } >> $GITHUB_OUTPUT
+              echo "has_custom=true" >> $GITHUB_OUTPUT
+            else
+              echo "No custom changelog found for version $VERSION"
+              echo "has_custom=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "CHANGELOG.md not found, using auto-generated changelog"
+            echo "has_custom=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -854,7 +888,7 @@ jobs:
 
             ## What's Changed
 
-            ${{ steps.changelog.outputs.changes || steps.default_changelog.outputs.changes }}
+            ${{ steps.extract_changelog.outputs.has_custom == 'true' && steps.extract_changelog.outputs.custom_notes || steps.changelog.outputs.changes || steps.default_changelog.outputs.changes }}
 
             ---
 

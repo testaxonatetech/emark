@@ -362,7 +362,16 @@ public class PdfViewerMain extends JFrame {
             if (lastDir != null) {
                 fileDialog.setDirectory(lastDir);
             }
-            fileDialog.setFilenameFilter((dir, name) -> name.toLowerCase().endsWith(".pdf"));
+
+            // Set file filter for PDF files
+            // On macOS, FilenameFilter controls visibility but should allow directory navigation
+            fileDialog.setFilenameFilter((dir, name) -> {
+                File file = new File(dir, name);
+                // Allow directories for navigation and .pdf files for selection
+                return file.isDirectory() || name.toLowerCase().endsWith(".pdf");
+            });
+
+            // Make the dialog modal and show it
             fileDialog.setVisible(true);
 
             String selectedFile = fileDialog.getFile();
