@@ -119,6 +119,27 @@ create_app_bundle() {
     <key>NSAppleEventsUsageDescription</key>
     <string>eMark needs to control other applications for PDF signing operations.</string>
 
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>eMark needs access to your Documents folder to open and sign PDF files.</string>
+
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>eMark needs access to your Downloads folder to open and sign PDF files.</string>
+
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>eMark needs access to your Desktop folder to open and sign PDF files.</string>
+
+    <key>NSRemovableVolumesUsageDescription</key>
+    <string>eMark needs access to removable volumes to open and sign PDF files.</string>
+
+    <key>NSNetworkVolumesUsageDescription</key>
+    <string>eMark needs access to network volumes to open and sign PDF files.</string>
+
+    <key>NSFileProviderDomainUsageDescription</key>
+    <string>eMark needs access to cloud storage to open and sign PDF files.</string>
+
+    <key>NSSystemAdministrationUsageDescription</key>
+    <string>eMark needs system administration access for PKCS#11 hardware token operations.</string>
+
     <key>LSMultipleInstancesProhibited</key>
     <true/>
 </dict>

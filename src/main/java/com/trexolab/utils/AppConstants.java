@@ -56,7 +56,7 @@ public class AppConstants {
 
     public static boolean isWindow = getOs().toLowerCase().contains("win");
     public static boolean isLinux = getOs().toLowerCase().contains("nix") || getOs().contains("nux") || getOs().contains("aix");
-    public static boolean isMac = getOs().contains("mac");
+    public static boolean isMac = getOs().toLowerCase().contains("mac");
 
     public static String getOs() {
         return System.getProperty("os.name");

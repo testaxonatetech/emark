@@ -74,7 +74,7 @@ public class AppInitializer {
             // Common PKCS11 library paths for Mac
             defaultConfig.pkcs11.add("/Applications/CryptoIDATools.app/Contents/macOS/libcryptoid_pkcs11.dylib");
             defaultConfig.pkcs11.add("/usr/local/lib/wdProxKeyUsbKeyTool/libwdpkcs_Proxkey.dylib");
-            defaultConfig.pkcs11.add(" /usr/local/lib/libcastle_v2.1.0.0.dylib");
+            defaultConfig.pkcs11.add("/usr/local/lib/libcastle_v2.1.0.0.dylib");
         }
 
         ConfigManager.writeConfig(defaultConfig);
