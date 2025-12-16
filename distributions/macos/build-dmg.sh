@@ -247,10 +247,17 @@ Option 1: Using the Install Script (Recommended)
    - Remove quarantine attributes
 
 Option 2: Manual Drag and Drop
-   Drag eMark.app to the "Applications" folder
+   1. Drag eMark.app to the "Applications" folder
+   2. Eject this disk image
+   3. Open eMark from your Applications folder
 
    On first launch:
    Right-click the app → Select "Open" → Click "Open" in the dialog
+
+IMPORTANT:
+   - Do NOT run eMark directly from this disk image
+   - Always copy to Applications first, then eject the disk image
+   - Running from the DMG will not persist after ejecting
 
 MEMORY CONFIGURATION:
 

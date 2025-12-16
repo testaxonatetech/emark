@@ -731,6 +731,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history and tags for changelog generation
 
       - name: Download JAR artifact
         uses: actions/download-artifact@v4

@@ -355,21 +355,42 @@ public class PdfViewerMain extends JFrame {
     }
 
     private void openPdf() {
-        JFileChooser chooser = new JFileChooser();
-        String lastDir = prefs.get(LAST_DIR_KEY, null);
-        if (lastDir != null) {
-            chooser.setCurrentDirectory(new File(lastDir));
-        }
-        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
-
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            selectedPdfFile = chooser.getSelectedFile();
-
-            File parentDir = selectedPdfFile.getParentFile();
-            if (parentDir != null) {
-                prefs.put(LAST_DIR_KEY, parentDir.getAbsolutePath());
+        // Use native macOS FileDialog on Mac for better file system access
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            FileDialog fileDialog = new FileDialog(this, "Open PDF", FileDialog.LOAD);
+            String lastDir = prefs.get(LAST_DIR_KEY, null);
+            if (lastDir != null) {
+                fileDialog.setDirectory(lastDir);
             }
-            loadAndRenderPdf(selectedPdfFile);
+            fileDialog.setFilenameFilter((dir, name) -> name.toLowerCase().endsWith(".pdf"));
+            fileDialog.setVisible(true);
+
+            String selectedFile = fileDialog.getFile();
+            String selectedDir = fileDialog.getDirectory();
+
+            if (selectedFile != null && selectedDir != null) {
+                selectedPdfFile = new File(selectedDir, selectedFile);
+                prefs.put(LAST_DIR_KEY, selectedDir);
+                loadAndRenderPdf(selectedPdfFile);
+            }
+        } else {
+            // Use JFileChooser on other platforms
+            JFileChooser chooser = new JFileChooser();
+            String lastDir = prefs.get(LAST_DIR_KEY, null);
+            if (lastDir != null) {
+                chooser.setCurrentDirectory(new File(lastDir));
+            }
+            chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
+
+            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                selectedPdfFile = chooser.getSelectedFile();
+
+                File parentDir = selectedPdfFile.getParentFile();
+                if (parentDir != null) {
+                    prefs.put(LAST_DIR_KEY, parentDir.getAbsolutePath());
+                }
+                loadAndRenderPdf(selectedPdfFile);
+            }
         }
     }
 

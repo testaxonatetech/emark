@@ -159,6 +159,12 @@ PLIST
 SCRIPT_DIR="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")" && pwd)"
 RESOURCES_DIR="\$(cd "\$SCRIPT_DIR/../Resources" && pwd)"
 
+# Check if running from DMG and warn user
+APP_PATH="\$(cd "\$SCRIPT_DIR/../.." && pwd)"
+if [[ "\$APP_PATH" == /Volumes/* ]]; then
+    osascript -e 'display dialog "eMark is running from a disk image (DMG).\\n\\nFor proper installation:\\n1. Drag eMark.app to your Applications folder\\n2. Eject the disk image\\n3. Open eMark from Applications\\n\\nRunning from the disk image will not persist after ejecting." buttons {"OK"} default button "OK" with icon caution with title "Installation Required"'
+fi
+
 # Bundled JRE location (macOS JRE structure)
 JAVA_EXE="\$RESOURCES_DIR/jre8-x64/Contents/Home/bin/java"
 
@@ -203,6 +209,8 @@ JAVA_OPTS="-Xms$XMS -Xmx$XMX -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 JAVA_OPTS="\$JAVA_OPTS -Xdock:name=$DISPLAY_NAME"
 JAVA_OPTS="\$JAVA_OPTS -Dapple.awt.application.name=$DISPLAY_NAME"
 JAVA_OPTS="\$JAVA_OPTS -Dapple.laf.useScreenMenuBar=true"
+JAVA_OPTS="\$JAVA_OPTS -Dapple.awt.fileDialogForDirectories=true"
+JAVA_OPTS="\$JAVA_OPTS -Dapple.awt.use-file-dialog-packages=true"
 
 # Add dock icon if available
 if [ -f "\$RESOURCES_DIR/emark.icns" ]; then
