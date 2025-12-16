@@ -98,7 +98,7 @@ public class ConfirmWordDialog extends JDialog {
             dialog.setVisible(true);
 
             JOptionPane.showMessageDialog(null,
-                    dialog.isConfirmed() ? "Confirmed ✅" : "Cancelled ❌");
+                    dialog.isConfirmed() ? "Confirmed" : "Cancelled");
         });
     }
 

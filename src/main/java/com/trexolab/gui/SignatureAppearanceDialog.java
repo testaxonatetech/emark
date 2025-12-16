@@ -627,7 +627,7 @@ public class SignatureAppearanceDialog extends JDialog {
                 leftLabel.setHorizontalAlignment(SwingConstants.CENTER);
                 leftLabel.setVerticalAlignment(SwingConstants.CENTER);
                 leftLabel.setText("<html><div style='text-align:center; color:#999; font-size:10px;'>" +
-                        "<b>⚠ Image<br/>Required</b></div></html>");
+                        "<b>Image<br/>Required</b></div></html>");
                 leftLabel.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createDashedBorder(new Color(255, 150, 0), 2, 4, 2, true),
                         BorderFactory.createEmptyBorder(5, 5, 5, 5)

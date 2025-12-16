@@ -230,10 +230,10 @@ public class SignatureVerificationService {
             }
 
             if (allPreviousAreApprovalSignatures) {
-                log.info("✓ All previous signatures are NOT_CERTIFIED - all signatures remain valid");
+                log.info("[OK] All previous signatures are NOT_CERTIFIED - all signatures remain valid");
                 // All signatures remain valid based on their individual verification status
             } else {
-                log.warn("✗ Found certified signature before last FORM_FILLING_* signature - document integrity compromised");
+                log.warn("[FAIL] Found certified signature before last FORM_FILLING_* signature - document integrity compromised");
                 // Optionally invalidate signatures here if strict PDF viewer compliance needed
             }
         }
@@ -254,10 +254,10 @@ public class SignatureVerificationService {
             }
 
             if (allAreApprovalSignatures) {
-                log.info("✓ All signatures are approval signatures (NOT_CERTIFIED) - all valid, signing allowed");
+                log.info("[OK] All signatures are approval signatures (NOT_CERTIFIED) - all valid, signing allowed");
                 // All signatures remain valid, additional signatures allowed
             } else {
-                log.info("⚠ Mixed certification levels detected - verify document modification rules");
+                log.info("[WARN] Mixed certification levels detected - verify document modification rules");
             }
         }
 
@@ -738,11 +738,11 @@ public class SignatureVerificationService {
                 com.trexolab.model.CertificationLevel certLevel =
                         com.trexolab.model.CertificationLevel.fromPValue(pValue);
                 result.setCertificationLevel(certLevel);
-                log.info("✓ Certification signature detected: " + certLevel.getLabel() +
+                log.info("[OK] Certification signature detected: " + certLevel.getLabel() +
                         " (P=" + pValue + ")");
             } else {
                 result.setCertificationLevel(com.trexolab.model.CertificationLevel.NOT_CERTIFIED);
-                log.info("✓ Approval signature (NOT_CERTIFIED)");
+                log.info("[OK] Approval signature (NOT_CERTIFIED)");
             }
 
             log.info("Signature verification completed for: " + signatureName +
@@ -1253,10 +1253,10 @@ public class SignatureVerificationService {
 
         try {
             subjectCert.verify(issuerCert.getPublicKey());
-            log.info("      ✓ Signature verification SUCCESS");
+            log.info("      [OK] Signature verification SUCCESS");
             return true;
         } catch (Exception e) {
-            log.warn("      ✗ Signature verification FAILED: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            log.warn("      [FAIL] Signature verification FAILED: " + e.getClass().getSimpleName() + " - " + e.getMessage());
             log.warn("        Subject cert serial: " + subjectCert.getSerialNumber());
             log.warn("        Issuer cert serial: " + issuerCert.getSerialNumber());
             log.warn("        This means the issuer certificate in trust store has a DIFFERENT KEY than the one that actually signed this certificate");
@@ -2701,7 +2701,7 @@ public class SignatureVerificationService {
          *   - Revocation status unknown (OCSP/CRL unavailable or check failed)
          *   - More secure than Adobe Reader's approach for CCA compliance
          *
-         * VALID (Green ✓) - All verification checks passed:
+         * VALID (Green checkmark) - All verification checks passed:
          *   - Document intact
          *   - Signature cryptographically valid
          *   - Certificate was valid at signing time

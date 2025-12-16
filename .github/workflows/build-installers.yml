@@ -835,32 +835,68 @@ jobs:
         run: |
           echo "changes=Initial release of eMark - Advanced PDF Signing Application." >> $GITHUB_OUTPUT
 
-      - name: Extract custom changelog from CHANGELOG.md
+      - name: Extract custom changelog from config.yml
         id: extract_changelog
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
 
-          # Try to extract version-specific notes from CHANGELOG.md if it exists
-          if [ -f "CHANGELOG.md" ]; then
-            echo "Found CHANGELOG.md, extracting notes for version $VERSION..."
+          # Try to extract version-specific notes from .github/config.yml
+          if [ -f ".github/config.yml" ]; then
+            echo "Found config.yml, extracting release notes for version $VERSION..."
 
-            # Extract section between ## [VERSION] and next ##
-            CHANGELOG_CONTENT=$(awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | sed '1d;$d' | sed '/^$/d')
-
-            if [ -n "$CHANGELOG_CONTENT" ]; then
-              echo "✓ Found custom changelog for version $VERSION"
-              {
-                echo "custom_notes<<EOF"
-                echo "$CHANGELOG_CONTENT"
-                echo "EOF"
-              } >> $GITHUB_OUTPUT
-              echo "has_custom=true" >> $GITHUB_OUTPUT
-            else
-              echo "No custom changelog found for version $VERSION"
+            # Check if release_notes section exists for this version
+            if yq eval ".release_notes.\"$VERSION\"" .github/config.yml | grep -q "null"; then
+              echo "No release notes found for version $VERSION in config.yml"
               echo "has_custom=false" >> $GITHUB_OUTPUT
+            else
+              echo "✓ Found release notes for version $VERSION"
+
+              # Build formatted changelog from YAML structure
+              CHANGELOG_CONTENT=""
+
+              # Extract and format "fixed" section
+              FIXED_ITEMS=$(yq eval ".release_notes.\"$VERSION\".fixed[]" .github/config.yml 2>/dev/null)
+              if [ -n "$FIXED_ITEMS" ]; then
+                CHANGELOG_CONTENT+="### Fixed"$'\n'$'\n'
+                while IFS= read -r line; do
+                  CHANGELOG_CONTENT+="- $line"$'\n'
+                done <<< "$FIXED_ITEMS"
+                CHANGELOG_CONTENT+=$'\n'
+              fi
+
+              # Extract and format "changed" section
+              CHANGED_ITEMS=$(yq eval ".release_notes.\"$VERSION\".changed[]" .github/config.yml 2>/dev/null)
+              if [ -n "$CHANGED_ITEMS" ]; then
+                CHANGELOG_CONTENT+="### Changed"$'\n'$'\n'
+                while IFS= read -r line; do
+                  CHANGELOG_CONTENT+="- $line"$'\n'
+                done <<< "$CHANGED_ITEMS"
+                CHANGELOG_CONTENT+=$'\n'
+              fi
+
+              # Extract and format "added" section
+              ADDED_ITEMS=$(yq eval ".release_notes.\"$VERSION\".added[]" .github/config.yml 2>/dev/null)
+              if [ -n "$ADDED_ITEMS" ]; then
+                CHANGELOG_CONTENT+="### Added"$'\n'$'\n'
+                while IFS= read -r line; do
+                  CHANGELOG_CONTENT+="- $line"$'\n'
+                done <<< "$ADDED_ITEMS"
+              fi
+
+              if [ -n "$CHANGELOG_CONTENT" ]; then
+                {
+                  echo "custom_notes<<EOF"
+                  echo "$CHANGELOG_CONTENT"
+                  echo "EOF"
+                } >> $GITHUB_OUTPUT
+                echo "has_custom=true" >> $GITHUB_OUTPUT
+              else
+                echo "Release notes section exists but is empty"
+                echo "has_custom=false" >> $GITHUB_OUTPUT
+              fi
             fi
           else
-            echo "CHANGELOG.md not found, using auto-generated changelog"
+            echo "config.yml not found, using auto-generated changelog"
             echo "has_custom=false" >> $GITHUB_OUTPUT
           fi
 

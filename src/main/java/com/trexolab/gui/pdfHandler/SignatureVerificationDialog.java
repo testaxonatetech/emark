@@ -173,7 +173,7 @@ public class SignatureVerificationDialog extends JDialog {
 
         switch (status) {
             case VALID:
-                iconText = "✓";
+                iconText = "OK";
                 iconColor = UIConstants.Colors.STATUS_VALID;
                 break;
             case UNKNOWN:
@@ -181,7 +181,7 @@ public class SignatureVerificationDialog extends JDialog {
                 iconColor = UIConstants.Colors.STATUS_WARNING;
                 break;
             case INVALID:
-                iconText = "✗";
+                iconText = "X";
                 iconColor = UIConstants.Colors.STATUS_ERROR;
                 break;
             default:

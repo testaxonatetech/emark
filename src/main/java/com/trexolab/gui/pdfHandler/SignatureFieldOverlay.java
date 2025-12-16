@@ -235,7 +235,7 @@ public class SignatureFieldOverlay extends JPanel {
     private String getFieldTooltip(SignatureFieldInfo field) {
         return "<html><body style='width: 200px; padding: 6px; font-family: Segoe UI, sans-serif;'>" +
                 "<div style='text-align: center; margin-bottom: 4px;'>" +
-                "<span style='font-size: 12px; font-weight: bold; color: #28A745;'>✍ Click to Sign</span>" +
+                "<span style='font-size: 12px; font-weight: bold; color: #28A745;'>Click to Sign</span>" +
                 "</div>" +
                 "<div style='font-size: 10px; line-height: 1.4; color: #cccccc;'>" +
                 "Sign <b>" + field.getFieldName() + "</b> with your digital certificate" +
@@ -515,7 +515,7 @@ public class SignatureFieldOverlay extends JPanel {
         // Show different text based on hover and field size
         String labelText;
         if (isHovered) {
-            labelText = "✍ Click to Sign";
+            labelText = "Click to Sign";
         } else if (rect.width > 100 && rect.height > 40) {
             labelText = "Click to Sign";
         } else {

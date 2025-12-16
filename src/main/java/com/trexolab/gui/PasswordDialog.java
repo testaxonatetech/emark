@@ -83,7 +83,7 @@ public class PasswordDialog extends JDialog {
 
         messageLabel.setFont(UIManager.getFont("Label.font").deriveFont(UIScale.scale(13f)));
 
-        // ✅ Use GridBagLayout to align message and field
+        // Use GridBagLayout to align message and field
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;

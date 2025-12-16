@@ -14,12 +14,6 @@ public class PlaceholderPanel extends JPanel {
         setOpaque(true); // respects FlatLaf theme
         setBackground(null); // use default background from FlatLaf
 
-        // Icon label - professional visual indicator (using Unicode box drawing for cross-platform compatibility)
-        JLabel iconLabel = new JLabel("□");
-        iconLabel.setFont(iconLabel.getFont().deriveFont(Font.PLAIN, 72f));
-        iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        iconLabel.setForeground(new Color(180, 180, 180));
-
         // Title - larger, bold
         JLabel titleLabel = new JLabel("No PDF Loaded");
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 24f));
@@ -37,7 +31,6 @@ public class PlaceholderPanel extends JPanel {
         subtitleLabel2.setAlignmentX(Component.CENTER_ALIGNMENT);
         subtitleLabel2.setForeground(new Color(255, 237, 107, 255)); // subtle yellow for visibility
 
-
         // Open PDF button - use FlatLaf default button styling
         JButton openBtn = UiFactory.createButton("Open PDF", null); // null to use FlatLaf default button color
         openBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -45,8 +38,6 @@ public class PlaceholderPanel extends JPanel {
 
         // Layout spacing with professional proportions
         add(Box.createVerticalGlue());
-        add(iconLabel);
-        add(Box.createRigidArea(new Dimension(0, 20)));
         add(titleLabel);
         add(Box.createRigidArea(new Dimension(0, 10)));
         add(subtitleLabel);

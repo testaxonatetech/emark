@@ -56,8 +56,8 @@ public class IconLoader {
         return label;
     }
 
-    // Create a shield emoji as fallback
+    // Create a shield text as fallback
     public static JLabel createShieldFallback(int size) {
-        return createTextIcon("🛡️", size, UIConstants.Colors.TYPE_EMBEDDED);
+        return createTextIcon("S", size, UIConstants.Colors.TYPE_EMBEDDED);
     }
 }
